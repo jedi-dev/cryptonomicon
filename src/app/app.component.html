@@ -1,6 +1,7 @@
 <div class="container mx-auto flex flex-col items-center bg-gray-100 p-4">
   <div
-    class="spin fixed w-100 h-100 opacity-80 bg-purple-800 inset-0 z-50 flex items-center justify-center"
+    *ngIf="loading"
+    class="fixed w-100 h-100 opacity-80 bg-purple-800 inset-0 z-50 flex items-center justify-center"
   >
     <svg
       class="animate-spin -ml-1 mr-3 h-12 w-12 text-white"
@@ -34,6 +35,7 @@
             <input
               [(ngModel)]="ticker"
               (keydown.enter)="add()"
+              (keydown.backspace)="clearDoubleTicker()"
               type="text"
               name="wallet"
               id="wallet"
@@ -42,27 +44,15 @@
             />
           </div>
           <div
+            *ngIf="nameSymbol.length"
             class="flex bg-white shadow-md p-1 rounded-md shadow-md flex-wrap"
           >
             <span
+              *ngFor="let s of nameSymbol"
+              (click)="ticker = s; add()"
               class="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer"
             >
-              BTC
-            </span>
-            <span
-              class="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer"
-            >
-              DOGE
-            </span>
-            <span
-              class="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer"
-            >
-              BCH
-            </span>
-            <span
-              class="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer"
-            >
-              CHD
+              {{ s }}
             </span>
           </div>
           <div *ngIf="doubleTicker" class="text-sm text-red-600">
@@ -141,7 +131,7 @@
           class="bg-purple-800 border w-10"
         ></div>
       </div>
-      <button type="button" class="absolute top-0 right-0">
+      <button (click)="sel = null" type="button" class="absolute top-0 right-0">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           xmlns:xlink="http://www.w3.org/1999/xlink"
