@@ -19,7 +19,6 @@ export class AppComponent implements OnInit, OnDestroy, DoCheck {
   graph: number[] = [];
   loading: boolean = true;
   symbol: string[] = [];
-  nameSymbol: string[] = [];
 
   private dataService = inject(DataService);
 
@@ -28,14 +27,21 @@ export class AppComponent implements OnInit, OnDestroy, DoCheck {
       .getSymbol()
       .subscribe((e) => (this.symbol = Object.keys(e.Data)));
     timer(500).subscribe(() => (this.loading = false));
+    this.loadData();
   }
-  ngDoCheck() {
-    if (this.ticker) this.selectSymbol();
-  }
+  ngDoCheck() {}
 
   ngOnDestroy() {
     this.dataSub?.unsubscribe();
     this.symbolSub?.unsubscribe();
+  }
+
+  loadData(): void {
+    const tickersLocalStorage = localStorage.getItem('dataTickers');
+    if (tickersLocalStorage) {
+      this.tickers = JSON.parse(tickersLocalStorage);
+      this.tickers.forEach((ticker) => this.subscribeToUpdates(ticker.name));
+    }
   }
 
   searchDoubleTicker(): void {
@@ -47,27 +53,33 @@ export class AppComponent implements OnInit, OnDestroy, DoCheck {
     this.doubleTicker = this.nameTickers.includes(this.ticker.toUpperCase());
   }
 
+  subscribeToUpdates(name: string): void {
+    this.dataSub = this.dataService.getCrypto(name).subscribe((e) => {
+      this.tickers.forEach((ticker) => {
+        if (ticker.name === name)
+          ticker.price = e.USD > 1 ? e.USD.toFixed(2) : e.USD.toPrecision(2);
+      });
+      if (this.sel?.name === name) {
+        this.graph.push(e.USD);
+      }
+    });
+  }
+
   add(): void {
     const currentTicker = {
-      name: this.ticker.toUpperCase(),
+      name: '',
       price: '_',
     };
     if (this.symbol.includes(this.ticker.toUpperCase())) {
       this.searchDoubleTicker();
       if (!this.nameTickers.includes(this.ticker.toUpperCase())) {
-        this.dataSub = this.dataService
-          .getCrypto(this.ticker.toUpperCase())
-          .subscribe((e) => {
-            currentTicker.price =
-              e.USD > 1 ? e.USD.toFixed(2) : e.USD.toPrecision(2);
-            if (this.sel?.name === currentTicker.name) {
-              this.graph.push(e.USD);
-            }
-          });
+        currentTicker.name = this.ticker.toUpperCase();
+        this.subscribeToUpdates(currentTicker.name);
         this.ticker = '';
         this.tickers.push(currentTicker);
+
+        localStorage.setItem('dataTickers', JSON.stringify(this.tickers));
       }
-      this.nameSymbol = [];
     }
   }
 
@@ -88,21 +100,14 @@ export class AppComponent implements OnInit, OnDestroy, DoCheck {
       (price) => `${5 + ((price - minValue) * 95) / (maxValue - minValue)}%`
     );
   }
-  selectSymbol(): void {
-    this.nameSymbol = [];
-    if (this.ticker) {
-      this.symbol.sort().forEach((s) => {
-        if (s.includes(this.ticker.toUpperCase())) {
-          if (this.nameSymbol.length < 4) {
-            this.nameSymbol.push(s);
-          }
-        }
-      });
-    }
-    console.log(this.nameSymbol);
+  selectSymbol(): string[] {
+    return this.symbol
+      .filter((s) => s.includes(this.ticker.toUpperCase()))
+      .sort((a, b) => a.length - b.length)
+      .slice(0, 4);
   }
-  clearDoubleTicker(): void {
+
+  clearDoubleTicker() {
     if (this.doubleTicker) this.doubleTicker = false;
-    if (!this.ticker) this.nameSymbol = [];
   }
 }

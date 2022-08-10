@@ -44,11 +44,11 @@
             />
           </div>
           <div
-            *ngIf="nameSymbol.length"
+            *ngIf="ticker"
             class="flex bg-white shadow-md p-1 rounded-md shadow-md flex-wrap"
           >
             <span
-              *ngFor="let s of nameSymbol"
+              *ngFor="let s of selectSymbol()"
               (click)="ticker = s; add()"
               class="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer"
             >
