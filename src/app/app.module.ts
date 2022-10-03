@@ -6,6 +6,9 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { SpinDirective } from './shared/directives/spin.directive';
 import { RouterModule, Routes } from '@angular/router';
+import { SpinnerModule } from './shared/modules/spinner/spinner.module';
+import { AddTickerModule } from './add-ticker/add-ticker.module';
+import { AppRoutingModule } from './app-routing.module';
 
 const routes: Routes = [];
 
@@ -16,6 +19,9 @@ const routes: Routes = [];
     FormsModule,
     HttpClientModule,
     RouterModule.forRoot(routes),
+    SpinnerModule,
+    AddTickerModule,
+    AppRoutingModule,
   ],
   providers: [],
   bootstrap: [AppComponent],
