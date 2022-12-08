@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   apiUrl: 'https://min-api.cryptocompare.com',
-  apiKey: '7bdaeec3b0d1d55dea515759414396b92cda6e67984a8f46d59fe1d71532e4d6',
+  apiKey: '6600073ad6ee505b96b0feb1269b178985b12f1b0f73eab73867627e11e37945',
 };
 
 /*
